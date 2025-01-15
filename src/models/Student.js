@@ -1,0 +1,54 @@
+import mongoose from "mongoose";
+import bcrypt from 'bcrypt';
+const salted = 20;
+const studentSchema  = mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    phoneNumber: {
+        type: Number,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    password: {
+        type: String,
+        required: true
+    },
+    collageId :{
+        type: String,
+        required: true
+    },
+    role:{
+        type: String,
+        default: 'User'
+    }
+},
+{ timestamps: true }
+)
+// Hash password before saving
+studentSchema.pre('save', async function(next) {
+    if (!this.isModified('password')) return next();
+    try {
+        this.password = await bcrypt.hash(this.password, salted);
+        next();
+    } catch (error) {
+        next(error);
+    }
+});
+
+// Compare password method
+studentSchema.methods.comparePassword = async function(candidatePassword) {
+    try {
+        return await bcrypt.compare(candidatePassword, this.password);
+    } catch (error) {
+        throw new Error('Password comparison failed');
+    }
+};
+
+const student = mongoose.model('students', studentSchema);
+export default student;
