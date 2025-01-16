@@ -2,7 +2,7 @@ import express from 'express';
 const router = express.Router();
 import {
     authorize,
-    Authintication
+    Authentication
 } from '../middlewares/auth.js';
 
 // Import routes
@@ -20,7 +20,7 @@ router.post('/register', register);
 router.post('/login', login);
 
 // All routes below are authenticated
-router.use(Authintication);
+router.use(Authentication);
 
 // Student Routes
 router.patch('/change-password', authorize(['student']), changePassword); // Change password

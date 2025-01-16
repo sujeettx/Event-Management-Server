@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from 'bcrypt';
-const salted = 20;
+const salted = 10;
 const studentSchema  = mongoose.Schema({
     name: {
         type: String,
@@ -28,8 +28,10 @@ const studentSchema  = mongoose.Schema({
         default: 'User'
     }
 },
-{ timestamps: true }
-)
+{ timestamps: true })
+
+// Enable index for faster searching
+studentSchema.index(true);
 // Hash password before saving
 studentSchema.pre('save', async function(next) {
     if (!this.isModified('password')) return next();

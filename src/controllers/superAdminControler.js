@@ -19,12 +19,12 @@ export const register = async (req, res) => {
             return res.status(400).json({ message: 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character' });
         }
         // Check for existing user
-        const superAdminExist = await superAdmin.findOne({ email });
+        const superAdminExist = await SuperAdmin.findOne({ email });
         if (superAdminExist) {
             return res.status(400).json({ message: 'SuperAdmin already exists' })
         }
         // Create a new superAdmin
-        const newSuperAdmin = new superAdmin({
+        const newSuperAdmin = new SuperAdmin({
             username,
             email,
             password
@@ -44,6 +44,7 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
     try {
         const { email, password } = req.body;
+
         // Basic validation
         if (!email || !password) {
             return res.status(400).json({ message: 'All fields are required' });

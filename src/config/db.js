@@ -7,8 +7,6 @@ const URI = process.env.MONGODB_URI;
 if(!URI){
     console.error("mongodb environment variable in not defined in .env file");
 }
-console.log(URI);
-
 
 // Connect to MongoDB
 

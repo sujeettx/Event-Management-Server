@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from 'bcrypt';
-const salted = 20;
+const salted = 10;
 
 const SuperAdminSchema = mongoose.Schema({
     username: {
@@ -21,7 +21,10 @@ const SuperAdminSchema = mongoose.Schema({
         type: String,
         default: 'superadmin'
     }
-})
+},{timestamp: true})
+
+// Enable indexing for unique fields to improve query performance
+SuperAdminSchema.index(true); 
 
 // Hash password before saving
 

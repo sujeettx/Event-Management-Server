@@ -1,6 +1,6 @@
 import express from "express";
 const router = express.Router();
-import { authorize, Authintication } from "../middlewares/auth.js";
+import { authorize, Authentication } from "../middlewares/auth.js";
 
 import {
   createEvent,
@@ -11,7 +11,7 @@ import {
   bookTicket,
 } from "../controllers/eventController.js";
 
-router.use(Authintication);
+router.use(Authentication);
 
 // Host Routes 
 router.post("/event", authorize(["host"]), createEvent);                   // Create event

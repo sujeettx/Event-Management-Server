@@ -44,7 +44,7 @@ const eventSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Student'
     }]
-})
-
+},{timestamps : true})
+eventSchema.index(true);
 const Event = mongoose.model("Event", eventSchema);
 export default Event;

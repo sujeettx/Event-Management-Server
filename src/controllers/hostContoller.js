@@ -1,11 +1,16 @@
 import Host from "../models/Host.js";
 import { tokenGenerate } from "../utils/tokenGenerate.js";
 import { generateCollegeId } from "../utils/generateCollageId.js";
+import bcrypt from 'bcrypt';
 
 // Register Host
-export const register = async (req, res) => {
+export const hostRegister = async (req, res) => {
     try {
+        console.log("host Register hits!");
+        
         const { collageName, collageEmail, password } = req.body;
+        console.log(collageName, collageEmail, password);
+        
         const collegeId = generateCollegeId(collageName, collageEmail);
         // Basic validation
         if (!collageName || !collageEmail || !password) {
@@ -13,16 +18,14 @@ export const register = async (req, res) => {
                 message: "Invalid input - all fields must be valid and required",
             });
         }
-        // chack the password
+        // Password regex validation
         const passwordRegex =
             /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
         if (!passwordRegex.test(password)) {
-            return res
-                .status(400)
-                .json({
-                    message:
-                        "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character",
-                });
+            return res.status(400).json({
+                message:
+                    "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+            });
         }
         // Check existing Host
         const existingHost = await Host.findOne({ collageEmail });
@@ -30,55 +33,53 @@ export const register = async (req, res) => {
             return res.status(400).json({ message: "Host already exists" });
         }
         // Create & save Host
-        const newHost = await new Host({
+        const newHost = new Host({
             collageName,
             collageEmail,
             password,
             collegeId,
-        }).save();
+        });
+        await newHost.save();
         return res.status(201).json({ message: "Host registered successfully" });
     } catch (error) {
         console.error("Registration error:", error);
         return res.status(500).json({ message: error.message });
     }
 };
-// login  host
+
+// Login Host
 export const login = async (req, res) => {
     try {
         const { collageEmail, password } = req.body;
         const host = await Host.findOne({ collageEmail });
-        // check existing host account
+        // Check if host exists
         if (!host) {
-            return res
-                .status(400)
-                .json({ message: "Host does not exist please create account" });
+            return res.status(400).json({ message: "Host does not exist. Please create an account." });
         }
-        // check password
-        const isMatch = await Host.comparePassword(password);
+        // Check password
+        const isMatch = await host.comparePassword(password);
         if (!isMatch) {
-            return res
-                .status(400)
-                .json({ message: "Invalid password please enter correct password" });
+            return res.status(400).json({ message: "Invalid password. Please enter the correct password." });
         }
-        // create a playload for generating a
+        // Create token payload
         const payload = {
             id: host._id,
-            email: host.email,
+            collageEmail: host.collageEmail,  // Correct field name
             role: host.role,
         };
         const token = tokenGenerate(payload);
-        res.status(200).json({
+        return res.status(200).json({
             Success: true,
             message: "Host logged in successfully",
             token,
         });
     } catch (error) {
-        res.status(500).json({ message: "Error logging in", error });
+        console.error("Login error:", error);
+        return res.status(500).json({ message: "Error logging in", error });
     }
 };
 
-// change password
-
+// Change Password
 export const changePassword = async (req, res) => {
     try {
         const { password, newPassword } = req.body;
@@ -86,7 +87,7 @@ export const changePassword = async (req, res) => {
         if (!host) {
             return res.status(400).json({ message: "Host not found" });
         }
-        const isMatch = await Host.comparePassword(password);
+        const isMatch = await host.comparePassword(password);
         if (!isMatch) {
             return res.status(400).json({ message: "Invalid old password" });
         }
@@ -94,19 +95,18 @@ export const changePassword = async (req, res) => {
         const passwordRegex =
             /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
         if (!passwordRegex.test(newPassword)) {
-            return res
-                .status(400)
-                .json({
-                    message:
-                        "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character",
-                });
+            return res.status(400).json({
+                message:
+                    "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+            });
         }
-        const hashedPassword = await Host.hashPassword(newPassword);
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
         host.password = hashedPassword;
         await host.save();
         return res.status(200).json({ message: "Password changed successfully" });
     } catch (error) {
-        res.status(500).json({ message: "Error changing password", error });
+        console.error("Password change error:", error);
+        return res.status(500).json({ message: "Error changing password", error });
     }
 };
 
@@ -117,20 +117,21 @@ export const getHostDetails = async (req, res) => {
         if (!host) {
             return res.status(404).json({ message: "Host not found" });
         }
-        host.password = undefined; // hide the password from the response
+        host.password = undefined;
         return res.json(host);
     } catch (error) {
-        res.status(500).json({ message: "Error getting host details", error });
+        console.error("Get host details error:", error);
+        return res.status(500).json({ message: "Error getting host details", error });
     }
 };
 
 // Get Hosts List
-
 export const getHostsList = async (req, res) => {
     try {
         const hosts = await Host.find({});
         return res.json(hosts);
     } catch (error) {
-        res.status(500).json({ message: "Error getting hosts list", error });
+        console.error("Get hosts list error:", error);
+        return res.status(500).json({ message: "Error getting hosts list", error });
     }
 };
