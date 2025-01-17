@@ -16,15 +16,15 @@ import {
 router.post('/login',login);                                                         // Login
 
 // All routes below are authenticated                     
-// router.use(Authentication);
+router.use(Authentication);
 
 // routes for host                                                 
 router.get('/hostdetails',authorize(['host']),getHostDetails);                        // Get host details
-router.patch('/change-password', authorize(['host']), changePassword);                // Change password
+router.patch('/change-password',authorize(['host']),changePassword);                  // Change password
 
 // routes for superadmin                                
 router.get('/',authorize(['superadmin']),getHostsList);                               // get all host details
-router.post('/register',hostRegister);                                                // Register new host
+router.post('/register',authorize(['superadmin']),hostRegister);                                                // Register new host
 
 // Export the router module
 export default router;

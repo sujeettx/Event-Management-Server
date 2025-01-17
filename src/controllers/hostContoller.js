@@ -1,7 +1,6 @@
 import Host from "../models/Host.js";
 import { tokenGenerate } from "../utils/tokenGenerate.js";
 import { generateCollegeId } from "../utils/generateCollageId.js";
-import bcrypt from 'bcrypt';
 
 // Register Host
 export const hostRegister = async (req, res) => {
@@ -64,7 +63,7 @@ export const login = async (req, res) => {
         // Create token payload
         const payload = {
             id: host._id,
-            collageEmail: host.collageEmail,  // Correct field name
+            collageEmail: host.collageEmail, 
             role: host.role,
         };
         const token = tokenGenerate(payload);
@@ -83,6 +82,7 @@ export const login = async (req, res) => {
 export const changePassword = async (req, res) => {
     try {
         const { password, newPassword } = req.body;
+        console.log(password, newPassword);
         const host = await Host.findById(req.user.id);
         if (!host) {
             return res.status(400).json({ message: "Host not found" });
@@ -100,8 +100,7 @@ export const changePassword = async (req, res) => {
                     "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character",
             });
         }
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-        host.password = hashedPassword;
+        host.password = newPassword;
         await host.save();
         return res.status(200).json({ message: "Password changed successfully" });
     } catch (error) {
@@ -129,7 +128,22 @@ export const getHostDetails = async (req, res) => {
 export const getHostsList = async (req, res) => {
     try {
         const hosts = await Host.find({});
-        return res.json(hosts);
+        if (!hosts) {
+            return res.status(404).json({ message: "No hosts found" });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Hosts found",
+            totalhosts: hosts.length,
+            hosts: {
+                data: hosts.map((host) => ({
+                    collageName: host.collageName,
+                    collageEmail: host.collageEmail,
+                    collegeId: host.collegeId
+                })),
+            },
+        });
     } catch (error) {
         console.error("Get hosts list error:", error);
         return res.status(500).json({ message: "Error getting hosts list", error });
