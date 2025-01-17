@@ -1,11 +1,11 @@
+import mongoose from 'mongoose';
 import Student from "../models/Student.js";
 import { tokenGenerate } from "../utils/tokenGenerate.js";
-import Host from "../models/Host.js";
+import Host from '../models/Host.js'
 // Register Student
 export const register = async (req, res) => {
   try {
     const { name, phoneNumber, email, password, collageId } = req.body;
-
     // Basic validation
     if (!name || !phoneNumber || !email || !password || !collageId) {
       return res
@@ -29,7 +29,7 @@ export const register = async (req, res) => {
       return res.status(400).json({ message: "Student already exists" });
     }
     // validate the collageId
-    const existingHost = await Host.findOne({ collageId });
+    const existingHost = await Host.findOne({collegeId:req.collageId});
     if (!existingHost) {
       return res
         .status(400)
@@ -68,12 +68,17 @@ export const login = async (req, res) => {
     if (!student) {
       return res.status(400).json({ message: "Student does not exist" });
     }
-    const isMatch = await Student.comparePassword(password);
+    const isMatch = await student.comparePassword(password);
     if (!isMatch) {
       return res.status(400).json({ message: "Incorrect password" });
     }
-    // Generate JWT token
-    const token = tokenGenerate(student);
+    // create plaload for generating jwt token
+    const plaload = {
+      id: student._id,
+      email: student.email,
+      role: student.role,
+    }
+    const token = tokenGenerate(plaload);
     res.status(200).json({
       success: true,
       message: "Student logged in successfully",
@@ -92,7 +97,7 @@ export const changePassword = async (req, res) => {
     if (!student) {
       return res.status(400).json({ message: "Student not found" });
     }
-    const isMatch = await Student.comparePassword(password);
+    const isMatch = await student.comparePassword(password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid old password" });
     }
@@ -141,7 +146,13 @@ export const updateStudentDetails = async (req, res) => {
     if (!student) {
       return res.status(400).json({ message: "Student not found" });
     }
-    res.status(200).json(student);
+    // Hide sensitive data
+    student.password = undefined;
+    res.status(200).json({
+      success: true,
+      message: "Details updated successfully",
+      updatedStudent: student,
+    });
   } catch (error) {
     res.status(500).json({ message: "Error updating student details", error });
   }
@@ -151,27 +162,62 @@ export const updateStudentDetails = async (req, res) => {
 export const deleteStudent = async (req, res) => {
   try {
     const student = await Student.findByIdAndDelete(
-      req.user.id || req.params.id
+      req.user.id
     );
     if (!student) {
       return res.status(400).json({ message: "Student not found" });
     }
-    res.status(200).json({ message: "Student deleted successfully" });
+    res.status(200).json({
+      success: true,
+      message: "account deleted successfully",
+    });
   } catch (error) {
     res.status(500).json({ message: "Error deleting student", error });
   }
 };
-
+// delete student account by their id only host can access it
+export const deleteStudentById = async (req, res) => {
+  try {
+    const { id: studentId } = req.params;
+    const hostId = req.user.id;
+    if (!mongoose.Types.ObjectId.isValid(studentId) || !mongoose.Types.ObjectId.isValid(hostId)) {
+      return res.status(400).json({ message: "Invalid student or host ID" });
+    }
+    const host = await Host.findById(hostId);
+    if (!host || !host.collageId) return res.status(404).json({ message: "Host not found" });
+    const student = await Student.findById(studentId);
+    if (!student || !student.collageId) return res.status(404).json({ message: "Student not found" });
+    if (host.collageId.toString() !== student.collageId.toString()) {
+      return res.status(403).json({ message: "Unauthorized to delete this student" });
+    }
+    await Student.findByIdAndDelete(studentId);
+    res.status(200).json({ success: true, message: "Student account deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error deleting student", error });
+  }
+};
 // Get Students by Collage ID
 export const getStudentsByCollageId = async (req, res) => {
   try {
-    const students = await Student.find({ collageId: req.params.collageId });
+    const students = await Student.find({ collageId: req.user.collageId });
     if (!students) {
       return res
         .status(400)
         .json({ message: "No students found for the given collage ID" });
     }
-    res.status(200).json(students);
+    res.status(200).json({
+      success: true,
+      totalStudentCount: students.length,
+      students: students.map((student) =>{
+        student.password = undefined;
+        return {
+          name: student.name,
+          phoneNumber: student.phoneNumber,
+          email: student.email,
+        };
+      } )
+    });
   } catch (error) {
     res
       .status(500)

@@ -1,12 +1,12 @@
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
-// import SuperAdmin from "../models/SuperAdmin.js";
-// import Host from "../models/Host.js";
-// import Student from "../models/Student.js";
+import SuperAdmin from "../models/SuperAdmin.js";
+import Host from "../models/Host.js";
+import Student from "../models/Student.js";
 
 dotenv.config();
 const SECRET_KEY = process.env.JWT_SECRET;
-export const Authentication = (req, res, next) => {
+export const Authentication = async (req, res, next) => {
     try {
         const token = req.headers.authorization;
         if (!token) {
@@ -14,7 +14,22 @@ export const Authentication = (req, res, next) => {
         }
         try {
             const decoded = jwt.verify(token, SECRET_KEY);
-            req.user = decoded;
+            let user;
+
+            if (decoded.role === "superadmin") {
+                user = await SuperAdmin.findById(decoded.id);
+            } else if (decoded.role === "host") {
+                user = await Host.findById(decoded.id);
+            } 
+            else if (decoded.role === "student") {
+                user = await Student.findById(decoded.id);
+            } else {
+                return res.status(401).json({ message: 'Invalid user role' });
+            }
+            if (!user) {
+                return res.status(401).json({ message: 'User not found' });
+            }
+            req.user = user;
             next();
         } catch (error) {
             if (error instanceof jwt.TokenExpiredError) {
@@ -31,7 +46,7 @@ export const Authentication = (req, res, next) => {
     }
 };
 
-// Authorization Middleware (no changes needed)
+// Authorization Middleware 
 export const authorize = (roles) => (req, res, next) => {
     try {
         if (!req.user) {

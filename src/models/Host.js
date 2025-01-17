@@ -15,7 +15,7 @@ const hostSchema  = mongoose.Schema({
         type: String,
         required: true
     },
-    collegeId: { 
+    collageId: { 
         type: String,
         required: true,
         unique: true

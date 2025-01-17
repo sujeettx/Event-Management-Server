@@ -1,6 +1,6 @@
 import Host from "../models/Host.js";
 import { tokenGenerate } from "../utils/tokenGenerate.js";
-import { generateCollegeId } from "../utils/generateCollageId.js";
+import { generatecollageId } from "../utils/generateCollageId.js";
 
 // Register Host
 export const hostRegister = async (req, res) => {
@@ -10,7 +10,7 @@ export const hostRegister = async (req, res) => {
         const { collageName, collageEmail, password } = req.body;
         console.log(collageName, collageEmail, password);
         
-        const collegeId = generateCollegeId(collageName, collageEmail);
+        const collageId = generatecollageId(collageName, collageEmail);
         // Basic validation
         if (!collageName || !collageEmail || !password) {
             return res.status(400).json({
@@ -36,7 +36,7 @@ export const hostRegister = async (req, res) => {
             collageName,
             collageEmail,
             password,
-            collegeId,
+            collageId,
         });
         await newHost.save();
         return res.status(201).json({ message: "Host registered successfully" });
@@ -140,7 +140,7 @@ export const getHostsList = async (req, res) => {
                 data: hosts.map((host) => ({
                     collageName: host.collageName,
                     collageEmail: host.collageEmail,
-                    collegeId: host.collegeId
+                    collageId: host.collageId
                 })),
             },
         });

@@ -13,6 +13,7 @@ import {
     getStudentDetails,
     updateStudentDetails,
     deleteStudent,
+    deleteStudentById,
     getStudentsByCollageId
 } from '../controllers/studentController.js';
 
@@ -29,7 +30,7 @@ router.patch('/updateStudentDetails', authorize(['student']), updateStudentDetai
 router.delete('/deleteStudent', authorize(['student']), deleteStudent); // Delete student
 
 // Host Routes
-router.delete('/deleteStudent/:id', authorize(['host']), deleteStudent); // Delete student by ID (host only)
-router.get('/getStudentsByCollageId/:collageId', authorize(['host']), getStudentsByCollageId); // Get students by collegeId
+router.delete('/deleteStudentById/:id', authorize(['host']), deleteStudentById); // Delete student by student ID (host only)
+router.get('/getStudentsByCollageId', authorize(['host']), getStudentsByCollageId); // Get students by collageId
 
 export default router;
