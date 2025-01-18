@@ -1,16 +1,14 @@
 import Event from '../models/Event.js';
-/// Create a new event
+import Host from '../models/Host.js';
+
+// Create a new event
 export const createEvent = async (req, res) => {
     try {
         const { title, description, date, Venue, ticketPrice, time, deadlineDate } = req.body;
-
-        // Validation error
         if (!title || !description || !date || !Venue || !ticketPrice || !time || !deadlineDate) {
             return res.status(400).json({ message: "Please provide all the required fields" });
         }
-
-        const organizer = req.host.hostId; 
-
+        const organizer = req.user.id; 
         const newEvent = new Event({
             title,
             description,
@@ -21,13 +19,10 @@ export const createEvent = async (req, res) => {
             deadlineDate,
             organizer,
         });
-
         await newEvent.save();
-
         res.status(201).json({
             success: true,
-            message: "Event created successfully",
-            event: newEvent,
+            message: "Event created successfully"
         });
     } catch (error) {
         console.error("Error creating event:", error);
@@ -35,13 +30,14 @@ export const createEvent = async (req, res) => {
     }
 };
 
-// Get all events
-export const getAllEvents = async (req, res) => {
+// Get all events created by the host
+export const getAllEventsforHost = async (req, res) => {
     try {
         const events = await Event.find({ organizer: req.user.id });
         res.json({
             success: true,
             message: "Events found",
+            totalEvents: events.length,
             events,
         });
     } catch (error) {
@@ -50,10 +46,35 @@ export const getAllEvents = async (req, res) => {
     }
 };
 
-// Get single event details
-export const getEventDetails = async (req, res) => {
+// Get events for a student based on their college ID
+export const getEventsForStudent = async (req, res) => {
     try {
-        const event = await Event.findById(req.params.id).populate("registeredStudents"); 
+        const studentCollegeId = req.user.collegeId;
+        const host = await Host.findOne({ collegeId: studentCollegeId });
+        if (!host) {
+            return res.status(404).json({ message: "No host found for the given college ID" });
+        }
+        const events = await Event.find({ organizer: host._id });
+        if (!events) {
+            return res.status(404).json({ message: "No events found for the given college ID" });
+        }
+        events.registeredStudents = undefined;
+        res.json({
+            success: true,
+            message: "Events found",
+            events,
+        });
+    } catch (error) {
+        console.error("Error getting events for student:", error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Get details of a single event for host
+export const getSingleEventsforHost = async (req, res) => {
+    try {
+        const event = await Event.findById(req.params.eventId)
+        .populate("registeredStudents");
         if (!event) {
             return res.status(404).json({ message: "Event not found" });
         }
@@ -68,11 +89,26 @@ export const getEventDetails = async (req, res) => {
     }
 };
 
-// Update event
+// get single event for students
+export const getSingleEventsforStudent = async (req, res) => {
+    try {
+      const event = await Event.findById(req.params.id)
+      event.registeredStudents = undefined;
+        res.json({
+            success: true,
+            message: "Event found",
+            event,
+        });
+    } catch (error) {
+        console.error("Error getting events:", error);
+        res.status(500).json({ message: error.message });
+    }
+}
+// Update an event's details
 export const updateEvent = async (req, res) => {
     try {
-        const event = await Event.findByIdAndUpdate(req.params.id, req.body,
-            { new: true, runValidators: true });
+        const eventId = req.params.eventId
+        const event = await Event.findByIdAndUpdate(eventId,req.body, { new: true, runValidators: true });
         if (!event) {
             return res.status(404).json({ message: "Event not found" });
         }
@@ -87,10 +123,14 @@ export const updateEvent = async (req, res) => {
     }
 };
 
-// Delete event
+// Delete an event
 export const deleteEvent = async (req, res) => {
     try {
-        const event = await Event.findByIdAndDelete(req.params.id);
+        const eventId = req.params.eventId;
+        if (!eventId) {
+            return res.status(400).json({ message: "Invalid event ID" });
+        }
+        const event = await Event.findByIdAndDelete(eventId);
         if (!event) {
             return res.status(404).json({ message: "Event not found" });
         }
@@ -104,22 +144,19 @@ export const deleteEvent = async (req, res) => {
     }
 };
 
-// Book a ticket
+// Book a ticket for an event
 export const bookTicket = async (req, res) => {
     try {
         const event = await Event.findById(req.params.id);
         if (!event) {
             return res.status(404).json({ message: "Event not found" });
         }
-
-        // Add student to registeredStudents
         if (!event.registeredStudents.includes(req.user.id)) {
             event.registeredStudents.push(req.user.id);
             await event.save();
         } else {
             return res.status(400).json({ message: "You have already booked a ticket for this event" });
         }
-
         res.json({
             success: true,
             message: "Ticket booked successfully",

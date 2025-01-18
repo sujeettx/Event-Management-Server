@@ -42,7 +42,7 @@ const eventSchema = mongoose.Schema({
     },
     registeredStudents: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Student'
+        ref: 'Students'
     }]
 },{timestamps : true})
 eventSchema.index(true);
