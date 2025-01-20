@@ -4,27 +4,24 @@ import {
     Authentication,
     authorize
 } from '../middlewares/auth.js';
-
 import {
-    hostRegister,
+    deleteStudentById,
+    getStudentsByCollageId
+} from '../controllers/studentController.js';
+import {
     login,
     changePassword,
     getHostDetails,
-    getHostsList
 } from '../controllers/hostContoller.js';
 
-router.post('/login',login);                                                         // Login
+router.post('/loginHost',login);                                                      // Login
 
 // All routes below are authenticated                     
-router.use(Authentication);
-
-// routes for host                                                 
+router.use(Authentication);                                                
 router.get('/hostdetails',authorize(['host']),getHostDetails);                        // Get host details
 router.patch('/change-password',authorize(['host']),changePassword);                  // Change password
-
-// routes for superadmin                                
-router.get('/',authorize(['superadmin']),getHostsList);                               // get all host details
-router.post('/register',authorize(['superadmin']),hostRegister);                                                // Register new host
+router.delete('/deleteStudentById/:id', authorize(['host']), deleteStudentById);      // Delete student by student ID (host only)
+router.get('/getStudentsByCollageId', authorize(['host']), getStudentsByCollageId);   // Get students by collageId
 
 // Export the router module
 export default router;

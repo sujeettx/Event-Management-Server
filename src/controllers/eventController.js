@@ -62,8 +62,15 @@ export const getEventsForStudent = async (req, res) => {
         res.json({
             success: true,
             message: "Events found",
-            events,
-        });
+            totalEvents: events.length,
+            events: events.map(event => {
+                const { registeredStudents, ...rest } = event.toObject();
+                return {
+                    ...rest,
+                    numberOfRegisteredStudents: registeredStudents.length,
+                };
+            }),
+        });           
     } catch (error) {
         console.error("Error getting events for student:", error);
         res.status(500).json({ message: error.message });
@@ -81,6 +88,7 @@ export const getSingleEventsforHost = async (req, res) => {
         res.json({
             success: true,
             message: "Event found",
+            totalRegisteredStudents: event.registeredStudents.length,
             event,
         });
     } catch (error) {
@@ -92,8 +100,12 @@ export const getSingleEventsforHost = async (req, res) => {
 // get single event for students
 export const getSingleEventsforStudent = async (req, res) => {
     try {
-      const event = await Event.findById(req.params.id)
+      const event = await Event.findById(req.params.eventId)
+      if (!event) {
+        return res.status(404).json({ message: "Event not found" });
+      }
       event.registeredStudents = undefined;
+
         res.json({
             success: true,
             message: "Event found",
@@ -147,7 +159,12 @@ export const deleteEvent = async (req, res) => {
 // Book a ticket for an event
 export const bookTicket = async (req, res) => {
     try {
-        const event = await Event.findById(req.params.id);
+        const eventId = req.params.eventId ;
+        console.log(eventId);
+        if (!eventId) {
+            return res.status(400).json({ message: "Invalid event ID" });
+        }
+        const event = await Event.findById(eventId);
         if (!event) {
             return res.status(404).json({ message: "Event not found" });
         }

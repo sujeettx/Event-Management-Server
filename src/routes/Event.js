@@ -1,29 +1,22 @@
-import express from "express";
+import express from 'express';
 const router = express.Router();
-import { authorize, Authentication } from "../middlewares/auth.js";
+import { authorize, Authentication } from '../middlewares/auth.js';
 
 import {
  createEvent,
  getAllEventsforHost,
- getEventsForStudent,
  getSingleEventsforHost,
- getSingleEventsforStudent,
  updateEvent,
  deleteEvent,
- bookTicket,
-} from "../controllers/eventController.js";
-router.use(Authentication);
+} from '../controllers/eventController.js';
+router.use(Authentication,authorize([['host']]));
 
 // Host Routes 
-router.post("/", authorize(["host"]), createEvent);                   // Create event
-router.patch("/:eventId", authorize(["host"]), updateEvent);               // Update event
-router.delete("/:eventId", authorize(["host"]), deleteEvent);             // Delete event
-router.get("/:eventId", authorize(["host"]),getSingleEventsforHost);      // Get single events for host
-router.get("/", authorize(["host"]),getAllEventsforHost);            // Get all events for host
+router.post('/', createEvent);                        // Create event
+router.patch('/:eventId' ,updateEvent);               // Update event
+router.delete('/:eventId' , deleteEvent);              // Delete event
+router.get('/:eventId' ,getSingleEventsforHost);       // Get single events for host
+router.get('/' ,getAllEventsforHost);                  // Get all events for host
 
-// Student Routes
-router.post("/book-ticket:eventId", authorize(["student"]), bookTicket);  // Book ticket
-router.get("/:eventId", authorize(["student"]), getSingleEventsforStudent); // get signle events for student
-router.get("/", authorize(["student"]),getEventsForStudent);        // get all events for student
-
+// Export the router module
 export default router;
