@@ -12,7 +12,7 @@ export const tokenGenerate = (user)=>{
             throw new Error('Invalid user data provided');
         }
         const token = jwt.sign(user, secret, {
-            expiresIn: '5d'
+            expiresIn: '2d'
         });
         return token;
     } catch (error) {

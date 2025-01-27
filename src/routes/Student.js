@@ -31,8 +31,8 @@ router.patch('/change-password', changePassword);                   // Change pa
 router.get('/studentDetails', getStudentDetails);                   // Get student details
 router.patch('/updateStudentDetails', updateStudentDetails);        // Update student details
 router.delete('/deleteStudent', deleteStudent);                     // Delete student
-router.post("/bookticket/:eventId", bookTicket);                     // Book ticket
-router.get("/geteventDetailes/:eventId", getSingleEventsforStudent); // get signle events for student
+router.post("/bookticket/:eventId", bookTicket);                    // Book ticket
+router.get("/geteventDetailes/:eventId", getSingleEventsforStudent);// get signle events for student
 router.get("/getAllEvents", getEventsForStudent);                   // get all events for student
 
 export default router;

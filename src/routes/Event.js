@@ -12,7 +12,7 @@ import {
 router.use(Authentication,authorize([['host']]));
 
 // Host Routes 
-router.post('/', createEvent);                        // Create event
+router.post('/', createEvent);                         // Create event
 router.patch('/:eventId' ,updateEvent);               // Update event
 router.delete('/:eventId' , deleteEvent);              // Delete event
 router.get('/:eventId' ,getSingleEventsforHost);       // Get single events for host
