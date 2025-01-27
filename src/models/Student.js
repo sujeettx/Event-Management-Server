@@ -2,14 +2,6 @@ import mongoose from "mongoose";
 import bcrypt from 'bcrypt';
 const salted = 10;
 const studentSchema  = mongoose.Schema({
-    name: {
-        type: String,
-        required: true
-    },
-    phoneNumber: {
-        type: Number,
-        required: true
-    },
     email: {
         type: String,
         required: true,

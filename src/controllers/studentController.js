@@ -5,9 +5,9 @@ import Host from '../models/Host.js'
 // Register Student
 export const register = async (req, res) => {
   try {
-    const { name, phoneNumber, email, password, collageId } = req.body;
+    const { name, email, password, collageId } = req.body;
     // Basic validation
-    if (!name || !phoneNumber || !email || !password || !collageId) {
+    if (!name || !email || !password || !collageId) {
       return res
         .status(400)
         .json({ message: "Please fill in all required fields" });
@@ -41,7 +41,6 @@ export const register = async (req, res) => {
     // Create and save the new student
     const newStudent = new Student({
       name,
-      phoneNumber,
       email,
       password,
       collageId,
@@ -213,7 +212,6 @@ export const getStudentsByCollageId = async (req, res) => {
         student.password = undefined;
         return {
           name: student.name,
-          phoneNumber: student.phoneNumber,
           email: student.email,
         };
       } )
