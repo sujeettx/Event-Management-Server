@@ -5,9 +5,9 @@ import Host from '../models/Host.js'
 // Register Student
 export const register = async (req, res) => {
   try {
-    const { name, email, password, collageId } = req.body;
+    const { name, email, password, collegeId } = req.body;
     // Basic validation
-    if (!name || !email || !password || !collageId) {
+    if (!name || !email || !password || !collegeId) {
       return res
         .status(400)
         .json({ message: "Please fill in all required fields" });
@@ -28,13 +28,13 @@ export const register = async (req, res) => {
     if (existingStudent) {
       return res.status(400).json({ message: "Student already exists" });
     }
-    // validate the collageId
-    const existingHost = await Host.findOne({collegeId:req.collageId});
+    // validate the collegeId
+    const existingHost = await Host.findOne({collegeId:req.collegeId});
     if (!existingHost) {
       return res
         .status(400)
         .json({
-          message: "Invalid collageId. Please enter a correct collageId.",
+          message: "Invalid collegeId. Please enter a correct collegeId.",
         });
     }
 
@@ -43,7 +43,7 @@ export const register = async (req, res) => {
       name,
       email,
       password,
-      collageId,
+      collegeId,
     });
     await newStudent.save();
 
@@ -183,10 +183,10 @@ export const deleteStudentById = async (req, res) => {
       return res.status(400).json({ message: "Invalid student or host ID" });
     }
     const host = await Host.findById(hostId);
-    if (!host || !host.collageId) return res.status(404).json({ message: "Host not found" });
+    if (!host || !host.collegeId) return res.status(404).json({ message: "Host not found" });
     const student = await Student.findById(studentId);
-    if (!student || !student.collageId) return res.status(404).json({ message: "Student not found" });
-    if (host.collageId.toString() !== student.collageId.toString()) {
+    if (!student || !student.collegeId) return res.status(404).json({ message: "Student not found" });
+    if (host.collegeId.toString() !== student.collegeId.toString()) {
       return res.status(403).json({ message: "Unauthorized to delete this student" });
     }
     await Student.findByIdAndDelete(studentId);
@@ -197,9 +197,9 @@ export const deleteStudentById = async (req, res) => {
   }
 };
 // Get Students by Collage ID
-export const getStudentsByCollageId = async (req, res) => {
+export const getStudentsBycollegeId = async (req, res) => {
   try {
-    const students = await Student.find({ collageId: req.user.collageId });
+    const students = await Student.find({ collegeId: req.user.collegeId });
     if (!students) {
       return res
         .status(400)

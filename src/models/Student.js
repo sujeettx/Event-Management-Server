@@ -11,7 +11,7 @@ const studentSchema  = mongoose.Schema({
         type: String,
         required: true
     },
-    collageId :{
+    collegeId :{
         type: String,
         required: true
     },

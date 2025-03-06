@@ -1,22 +1,22 @@
 import Host from "../models/Host.js";
 import { tokenGenerate } from "../utils/tokenGenerate.js";
-import { generatecollageId } from "../utils/generateCollageId.js";
+import generateCollegeId from '../utils/generateCollageId.js'
 
 // Register Host
 export const hostRegister = async (req, res) => {
     try {
         console.log("host Register hits!");
-        
+
         const { collageName, collageEmail, password } = req.body;
         console.log(collageName, collageEmail, password);
-        
-        const collageId = generatecollageId(collageName, collageEmail);
+
         // Basic validation
         if (!collageName || !collageEmail || !password) {
             return res.status(400).json({
                 message: "Invalid input - all fields must be valid and required",
             });
         }
+
         // Password regex validation
         const passwordRegex =
             /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -26,18 +26,33 @@ export const hostRegister = async (req, res) => {
                     "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character",
             });
         }
-        // Check existing Host
+
+        // Check existing Host by email
         const existingHost = await Host.findOne({ collageEmail });
         if (existingHost) {
             return res.status(400).json({ message: "Host already exists" });
         }
+
+        // Ensure unique collegeId
+        let collegeId;
+        let isUnique = false;
+
+        while (!isUnique) {
+            collegeId = generateCollegeId(collageName, collageEmail); // Generate ID
+            const existingCollege = await Host.findOne({ collegeId }); // Check uniqueness
+            if (!existingCollege) {
+                isUnique = true; // If unique, exit loop
+            }
+        }
+
         // Create & save Host
         const newHost = new Host({
             collageName,
             collageEmail,
             password,
-            collageId,
+            collegeId, // Use correct spelling
         });
+
         await newHost.save();
         return res.status(201).json({ message: "Host registered successfully" });
     } catch (error) {
@@ -140,7 +155,7 @@ export const getHostsList = async (req, res) => {
                 data: hosts.map((host) => ({
                     collageName: host.collageName,
                     collageEmail: host.collageEmail,
-                    collageId: host.collageId
+                    collegeId: host.collegeId
                 })),
             },
         });

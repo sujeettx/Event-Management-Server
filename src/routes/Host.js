@@ -6,7 +6,7 @@ import {
 } from '../middlewares/auth.js';
 import {
     deleteStudentById,
-    getStudentsByCollageId
+    getStudentsBycollegeId
 } from '../controllers/studentController.js';
 import {
     login,
@@ -21,7 +21,7 @@ router.use(Authentication);
 router.get('/hostdetails',authorize(['host']),getHostDetails);                        // Get host details
 router.patch('/change-password',authorize(['host']),changePassword);                  // Change password
 router.delete('/deleteStudentById/:id', authorize(['host']), deleteStudentById);      // Delete student by student ID (host only)
-router.get('/getStudentsByCollageId', authorize(['host']), getStudentsByCollageId);   // Get students by collageId
+router.get('/getStudentsBycollegeId', authorize(['host']), getStudentsBycollegeId);   // Get students by collegeId
 
 // Export the router module
 export default router;

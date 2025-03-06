@@ -17,7 +17,7 @@ import {
 } 
 from "../controllers/superAdminControler.js";
 
-router.post("/loginsuperadmin", login);                                         // Login super admin
+router.post("/loginsuperadmin", login);                               // Login super admin
 
 // All routes below are authenticated
 router.use(Authentication,authorize(['superadmin']));
