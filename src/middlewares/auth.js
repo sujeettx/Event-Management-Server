@@ -8,7 +8,9 @@ dotenv.config();
 const SECRET_KEY = process.env.JWT_SECRET;
 export const Authentication = async (req, res, next) => {
     try {
-        const token = req.headers.authorization;
+        const token2barear = req.headers.authorization;
+        
+        const token = token2barear.split(' ')[2];
         if (!token) {
             return res.status(401).json({ message: 'Access denied, no token provided' });
         }

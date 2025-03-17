@@ -28,8 +28,8 @@ router.use(Authentication,authorize(['student']));
 
 // Student Routes
 router.patch('/change-password', changePassword);                   // Change password
-router.get('/studentDetails', getStudentDetails);                   // Get student details
-router.patch('/updateStudentDetails', updateStudentDetails);        // Update student details
+router.get('/studentprofile', getStudentDetails);                   // Get student details
+router.patch('/updateprofile', updateStudentDetails);               // Update student details
 router.delete('/deleteStudent', deleteStudent);                     // Delete student
 router.post("/bookticket/:eventId", bookTicket);                    // Book ticket
 router.get("/geteventDetailes/:eventId", getSingleEventsforStudent);// get signle events for student

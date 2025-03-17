@@ -14,14 +14,14 @@ import {
     getHostDetails,
 } from '../controllers/hostContoller.js';
 
-router.post('/loginHost',login);                                                      // Login
+router.post('/login',login);                                                         // Login
 
 // All routes below are authenticated                     
 router.use(Authentication);                                                
-router.get('/hostdetails',authorize(['host']),getHostDetails);                        // Get host details
+router.get('/hostprofile',authorize(['host']),getHostDetails);                           // Get host details
 router.patch('/change-password',authorize(['host']),changePassword);                  // Change password
-router.delete('/deleteStudentById/:id', authorize(['host']), deleteStudentById);      // Delete student by student ID (host only)
-router.get('/getStudentsBycollegeId', authorize(['host']), getStudentsBycollegeId);   // Get students by collegeId
+router.delete('/deleteStudent/:id', authorize(['host']), deleteStudentById);          // Delete student by student ID (host only)
+router.get('/getallStudemts', authorize(['host']), getStudentsBycollegeId);   // Get students by collegeId
 
 // Export the router module
 export default router;

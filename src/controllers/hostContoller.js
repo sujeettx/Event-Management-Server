@@ -8,7 +8,6 @@ export const hostRegister = async (req, res) => {
         console.log("host Register hits!");
 
         const { collageName, collageEmail, password } = req.body;
-        console.log(collageName, collageEmail, password);
 
         // Basic validation
         if (!collageName || !collageEmail || !password) {

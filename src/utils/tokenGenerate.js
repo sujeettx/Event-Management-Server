@@ -14,7 +14,7 @@ export const tokenGenerate = (user)=>{
         const token = jwt.sign(user, secret, {
             expiresIn: '2d'
         });
-        return token;
+        return `Bearer ${token}`;
     } catch (error) {
         throw new Error(`Token generation failed: ${error.message}`);
     }

@@ -17,11 +17,11 @@ import {
 } 
 from "../controllers/superAdminControler.js";
 
-router.post("/loginsuperadmin", login);                               // Login super admin
+router.post("/login", login);                               // Login super admin
 
-// All routes below are authenticated
 router.use(Authentication,authorize(['superadmin']));
-router.post("/registerNewSuperadmin", register);                      // Register new superadmin
-router.get("/getHostList", getHostsList);                             // get all host details
-router.post("/registerhost", hostRegister);                           // Register new host
+// All routes below are authenticated
+router.post("/register", register);                      // Register new superadmin
+router.get("/getHostList", getHostsList);                // get all host details
+router.post("/registerhost", hostRegister);           // Register new host
 export default router;
